@@ -109,7 +109,6 @@ fun HomeScreen(
     var isSearchVisible by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf(ToolCategory.ALL) }
     var showInfoDialog by remember { mutableStateOf(false) }
-    var showDonationDialog by remember { mutableStateOf(false) }
     var showRatingDialog by remember { mutableStateOf(false) }
     var showPrivacyDialog by remember { mutableStateOf(false) }
     var userRating by remember { mutableIntStateOf(5) }
@@ -149,15 +148,17 @@ fun HomeScreen(
         }
     }
 
-    fun openUpiDonation() {
-        try {
-            val upiUri = Uri.parse("upi://pay?pa=rambeerkashyap76@okhdfcbank&pn=OmniTools%20Developer&mc=0000&mode=02&purpose=00&cu=INR")
-            val upiIntent = Intent(Intent.ACTION_VIEW, upiUri)
-            context.startActivity(Intent.createChooser(upiIntent, "Pay with UPI"))
-        } catch (e: Exception) {
-            ImageExportUtils.copyToClipboard(context, "rambeerkashyap76@okhdfcbank", "UPI ID")
-            Toast.makeText(context, "UPI ID copied! Open your UPI app to donate.", Toast.LENGTH_LONG).show()
+    fun shareApp() {
+        val packageName = context.packageName
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "OmniTools Pro - 40+ All-in-One Tools")
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "Check out OmniTools Pro! 40+ powerful all-in-one free tools for daily utility, designing, video creation, business & PDF:\nhttps://play.google.com/store/apps/details?id=$packageName"
+            )
         }
+        context.startActivity(Intent.createChooser(shareIntent, "Share OmniTools via"))
     }
 
     Scaffold(
@@ -217,8 +218,8 @@ fun HomeScreen(
                             IconButton(onClick = { isSearchVisible = true }) {
                                 Icon(Icons.Filled.Search, contentDescription = "Search Tools")
                             }
-                            IconButton(onClick = { showDonationDialog = true }) {
-                                Icon(Icons.Filled.VolunteerActivism, contentDescription = "Donate", tint = Color(0xFFEC4899))
+                            IconButton(onClick = { shareApp() }) {
+                                Icon(Icons.Filled.Share, contentDescription = "Share App", tint = MaterialTheme.colorScheme.primary)
                             }
                             IconButton(onClick = { showRatingDialog = true }) {
                                 Icon(Icons.Filled.Star, contentDescription = "Rate App", tint = Color(0xFFF59E0B))
@@ -377,10 +378,10 @@ fun HomeScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(6.dp))
-                            Text("Rate OmniTools on Play Store", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Text("Rate us on Play Store", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         }
                         Text(
-                            "Enjoying our 40+ free tools? Tap below to give a 5-star review on Google Play!",
+                            "Enjoying our 40+ free tools? Tap below to leave a review on Google Play!",
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
@@ -409,13 +410,13 @@ fun HomeScreen(
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Rate 5 Stars on Play Store ⭐", color = Color.Black, fontWeight = FontWeight.Bold)
+                            Text("Rate us on Play Store ⭐", color = Color.Black, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
 
-            // FOOTER SECTION: 2. Developer Donation QR Code Card
+            // FOOTER SECTION: 2. Share OmniTools Card (100% Google Play Compliant)
             item {
                 Card(
                     modifier = Modifier
@@ -423,138 +424,58 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp, vertical = 6.dp),
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(2.dp, Color(0xFF00BAF2))
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f))
                 ) {
                     Column(
                         modifier = Modifier.padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier.size(52.dp)
                         ) {
-                            Icon(Icons.Filled.VolunteerActivism, contentDescription = null, tint = Color(0xFFEC4899), modifier = Modifier.size(22.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                "Support the Developer ❤️",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 17.sp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    Icons.Filled.Share,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(26.dp)
+                                )
+                            }
                         }
 
                         Text(
-                            "If you like using these free tools, consider supporting the developer with a small donation via UPI!",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            "Share OmniTools with Friends & Family 🚀",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center
                         )
 
-                        // Embedded QR Code Frame
-                        Card(
-                            modifier = Modifier
-                                .size(200.dp)
-                                .shadow(8.dp, RoundedCornerShape(16.dp))
-                                .clickable { showDonationDialog = true },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.developer_qr),
-                                contentDescription = "Developer Donation UPI QR Code",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(8.dp),
-                                contentScale = ContentScale.Fit
-                            )
-                        }
-
                         Text(
-                            "Scan with Google Pay, PhonePe, Paytm or BHIM",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            "Love using our 40+ free utilities? Share OmniTools with your friends, family, and colleagues so everyone can create, calculate, and design easily!",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            lineHeight = 16.sp
                         )
 
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Button(
-                                onClick = { openUpiDonation() },
-                                modifier = Modifier.weight(1f),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BAF2))
-                            ) {
-                                Text("Pay via UPI", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                            }
-                            OutlinedButton(
-                                onClick = { showDonationDialog = true },
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text("Full QR", fontSize = 12.sp)
-                            }
+                        Button(
+                            onClick = { shareApp() },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Filled.Share, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Share App Now", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
                     }
                 }
             }
         }
-    }
-
-    // Developer Donation Full Dialog
-    if (showDonationDialog) {
-        AlertDialog(
-            onDismissRequest = { showDonationDialog = false },
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.VolunteerActivism, contentDescription = null, tint = Color(0xFFEC4899))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Developer Donation QR", fontSize = 17.sp)
-                }
-            },
-            text = {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Card(
-                        modifier = Modifier
-                            .size(260.dp)
-                            .shadow(6.dp, RoundedCornerShape(16.dp)),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.developer_qr),
-                            contentDescription = "Developer UPI QR",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(8.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-                    Text(
-                        "Scan to Donate & Support OmniTools Development!",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        "UPI ID: rambeerkashyap76@okhdfcbank",
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            },
-            confirmButton = {
-                Button(onClick = { openUpiDonation() }) {
-                    Text("Open UPI App")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDonationDialog = false }) {
-                    Text("Close")
-                }
-            }
-        )
     }
 
     // Rate App Dialog
@@ -565,7 +486,7 @@ fun HomeScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFF59E0B))
                     Spacer(Modifier.width(8.dp))
-                    Text("Rate OmniTools")
+                    Text("Rate us on Play Store")
                 }
             },
             text = {
@@ -593,7 +514,7 @@ fun HomeScreen(
                     showRatingDialog = false
                     openPlayStoreRating()
                 }) {
-                    Text("Submit on Play Store")
+                    Text("Rate us on Play Store")
                 }
             },
             dismissButton = {
@@ -623,10 +544,22 @@ fun HomeScreen(
                     Text("Watermark & PRO Plans:", fontWeight = FontWeight.SemiBold)
                     Text("Free exports include a subtle OmniTools watermark. Users can easily remove the watermark anytime by watching a short rewarded video ad!")
                     Spacer(Modifier.height(4.dp))
-                    Text("Support the Developer:", fontWeight = FontWeight.SemiBold)
-                    Text("You can scan the developer's UPI QR code in the footer to support new tool updates.")
+                    Text("Share & Support:", fontWeight = FontWeight.SemiBold)
+                    Text("Love OmniTools? Share our app with friends and family to help support continuous free updates!")
                     Spacer(Modifier.height(4.dp))
                     Button(
+                        onClick = {
+                            showInfoDialog = false
+                            shareApp()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Filled.Share, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Share OmniTools App")
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    OutlinedButton(
                         onClick = {
                             showInfoDialog = false
                             showPrivacyDialog = true
