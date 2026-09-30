@@ -37,11 +37,32 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 object AdManager {
     private const val TAG = "OmniToolsAds"
 
-    // Real AdMob IDs provided by user
-    const val APP_ID = "ca-app-pub-7584087725069099~5449667520"
-    const val BANNER_ID = "ca-app-pub-7584087725069099/8154712759"
-    const val INTERSTITIAL_ID = "ca-app-pub-7584087725069099/1322545249"
-    const val REWARDED_ID = "ca-app-pub-7584087725069099/3640752672"
+    /**
+     * =========================================================================
+     * 🟢 ADMOB ADS CONFIGURATION
+     * =========================================================================
+     * Set USE_TEST_ADS = true  -> Tests ads safely with Google Official Test IDs
+     * Set USE_TEST_ADS = false -> Shows your Real AdMob Ads for Play Store release
+     */
+    const val USE_TEST_ADS = true
+
+    // --- 🧪 OFFICIAL GOOGLE TEST ADS IDS (Safe for testing, 100% fill rate) ---
+    const val TEST_APP_ID = "ca-app-pub-3940256099942544~3347511713"
+    const val TEST_BANNER_ID = "ca-app-pub-3940256099942544/6300978111"
+    const val TEST_INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712"
+    const val TEST_REWARDED_ID = "ca-app-pub-3940256099942544/5224354917"
+
+    // --- 💰 YOUR REAL ADMOB IDS (Replace with your actual AdMob IDs for production) ---
+    const val REAL_APP_ID = "ca-app-pub-7584087725069099~5449667520"
+    const val REAL_BANNER_ID = "ca-app-pub-7584087725069099/8154712759"
+    const val REAL_INTERSTITIAL_ID = "ca-app-pub-7584087725069099/1322545249"
+    const val REAL_REWARDED_ID = "ca-app-pub-7584087725069099/3640752672"
+
+    // Active IDs automatically picked based on USE_TEST_ADS setting
+    val APP_ID: String get() = if (USE_TEST_ADS) TEST_APP_ID else REAL_APP_ID
+    val BANNER_ID: String get() = if (USE_TEST_ADS) TEST_BANNER_ID else REAL_BANNER_ID
+    val INTERSTITIAL_ID: String get() = if (USE_TEST_ADS) TEST_INTERSTITIAL_ID else REAL_INTERSTITIAL_ID
+    val REWARDED_ID: String get() = if (USE_TEST_ADS) TEST_REWARDED_ID else REAL_REWARDED_ID
 
     private var interstitialAd: InterstitialAd? = null
     private var rewardedAd: RewardedAd? = null
