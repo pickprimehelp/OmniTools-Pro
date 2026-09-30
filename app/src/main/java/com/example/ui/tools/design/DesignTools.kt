@@ -2,13 +2,22 @@ package com.example.ui.tools.design
 
 import android.app.Activity
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
 import android.graphics.RectF
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,14 +40,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CardGiftcard
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.OndemandVideo
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Button
@@ -51,10 +63,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -70,7 +84,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -180,6 +196,36 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
     var tagline by remember { mutableStateOf("Together with our families, we joyfully invite you to celebrate our union") }
     var hasWatermark by remember { mutableStateOf(true) }
 
+    // Bride & Groom Photo Pickers
+    var bridePhotoUri by remember { mutableStateOf<Uri?>(null) }
+    var groomPhotoUri by remember { mutableStateOf<Uri?>(null) }
+    var brideBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var groomBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    val bridePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            bridePhotoUri = uri
+            try {
+                val stream = context.contentResolver.openInputStream(uri)
+                brideBitmap = BitmapFactory.decodeStream(stream)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error loading bride photo", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    val groomPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            groomPhotoUri = uri
+            try {
+                val stream = context.contentResolver.openInputStream(uri)
+                groomBitmap = BitmapFactory.decodeStream(stream)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error loading groom photo", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     val activeTheme = themes[selectedThemeIndex]
 
     fun saveWithoutWatermarkViaAd() {
@@ -188,7 +234,7 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
                 activity = activity,
                 onRewardEarned = {
                     // Save clean image without watermark for this specific image
-                    val cleanBmp = renderWeddingCardBitmap(brideName, groomName, weddingDate, weddingTime, venue, rsvp, tagline, activeTheme, hasWatermark = false)
+                    val cleanBmp = renderWeddingCardBitmap(brideName, groomName, weddingDate, weddingTime, venue, rsvp, tagline, activeTheme, hasWatermark = false, brideBitmap, groomBitmap)
                     ImageExportUtils.saveBitmapToGallery(context, cleanBmp, "WeddingCard_NoWatermark")
                     Toast.makeText(context, "Saved without watermark! Next card will require watching video ad again.", Toast.LENGTH_LONG).show()
                     // Reset single-use watermark for subsequent generations
@@ -199,7 +245,7 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
                 }
             )
         } else {
-            val cleanBmp = renderWeddingCardBitmap(brideName, groomName, weddingDate, weddingTime, venue, rsvp, tagline, activeTheme, hasWatermark = false)
+            val cleanBmp = renderWeddingCardBitmap(brideName, groomName, weddingDate, weddingTime, venue, rsvp, tagline, activeTheme, hasWatermark = false, brideBitmap, groomBitmap)
             ImageExportUtils.saveBitmapToGallery(context, cleanBmp, "WeddingCard_NoWatermark")
         }
     }
@@ -232,7 +278,7 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(0.75f)
+                    .aspectRatio(0.72f)
                     .shadow(12.dp, RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
                 border = BorderStroke(3.dp, activeTheme.borderColor)
@@ -241,14 +287,14 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
                     modifier = Modifier
                         .fillMaxSize()
                         .background(Brush.verticalGradient(activeTheme.bgColors))
-                        .padding(20.dp)
+                        .padding(16.dp)
                 ) {
                     // Decorative inner border
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .border(1.dp, activeTheme.borderColor.copy(alpha = 0.6f), RoundedCornerShape(10.dp))
-                            .padding(14.dp),
+                            .padding(12.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
@@ -258,29 +304,95 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
                         ) {
                             // Top Ornament
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("॥ श्री गणेशाय नमः ॥", color = activeTheme.accentColor, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(tagline, color = activeTheme.textColor.copy(alpha = 0.85f), fontSize = 11.sp, textAlign = TextAlign.Center, fontStyle = FontStyle.Italic)
+                                Text("॥ श्री गणेशाय नमः ॥", color = activeTheme.accentColor, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(tagline, color = activeTheme.textColor.copy(alpha = 0.85f), fontSize = 10.5.sp, textAlign = TextAlign.Center, fontStyle = FontStyle.Italic)
+                            }
+
+                            // Couple Photos Preview if added
+                            if (brideBitmap != null || groomBitmap != null) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Bride photo
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(54.dp)
+                                                .clip(CircleShape)
+                                                .border(2.dp, activeTheme.borderColor, CircleShape)
+                                                .background(Color.Black.copy(alpha = 0.25f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            if (brideBitmap != null) {
+                                                Image(
+                                                    bitmap = brideBitmap!!.asImageBitmap(),
+                                                    contentDescription = "Bride",
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier.fillMaxSize()
+                                                )
+                                            } else {
+                                                Icon(Icons.Filled.Person, contentDescription = null, tint = activeTheme.accentColor.copy(alpha = 0.6f), modifier = Modifier.size(28.dp))
+                                            }
+                                        }
+                                        Spacer(Modifier.height(2.dp))
+                                        Text("Bride", fontSize = 9.sp, color = activeTheme.accentColor, fontWeight = FontWeight.SemiBold)
+                                    }
+
+                                    Icon(
+                                        Icons.Filled.Favorite,
+                                        contentDescription = null,
+                                        tint = activeTheme.accentColor,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+
+                                    // Groom photo
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(54.dp)
+                                                .clip(CircleShape)
+                                                .border(2.dp, activeTheme.borderColor, CircleShape)
+                                                .background(Color.Black.copy(alpha = 0.25f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            if (groomBitmap != null) {
+                                                Image(
+                                                    bitmap = groomBitmap!!.asImageBitmap(),
+                                                    contentDescription = "Groom",
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier.fillMaxSize()
+                                                )
+                                            } else {
+                                                Icon(Icons.Filled.Person, contentDescription = null, tint = activeTheme.accentColor.copy(alpha = 0.6f), modifier = Modifier.size(28.dp))
+                                            }
+                                        }
+                                        Spacer(Modifier.height(2.dp))
+                                        Text("Groom", fontSize = 9.sp, color = activeTheme.accentColor, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
                             }
 
                             // Center Couple Names
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(brideName, color = activeTheme.textColor, fontSize = 24.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif)
-                                Text("&", color = activeTheme.accentColor, fontSize = 20.sp, fontWeight = FontWeight.Light, modifier = Modifier.padding(vertical = 2.dp))
-                                Text(groomName, color = activeTheme.textColor, fontSize = 24.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif)
+                                Text(brideName, color = activeTheme.textColor, fontSize = if (brideBitmap != null || groomBitmap != null) 18.sp else 22.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif)
+                                Text("&", color = activeTheme.accentColor, fontSize = if (brideBitmap != null || groomBitmap != null) 15.sp else 18.sp, fontWeight = FontWeight.Light, modifier = Modifier.padding(vertical = 1.dp))
+                                Text(groomName, color = activeTheme.textColor, fontSize = if (brideBitmap != null || groomBitmap != null) 18.sp else 22.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif)
                             }
 
                             // Bottom Details
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("🗓  $weddingDate", color = activeTheme.accentColor, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                                Text("⏰  $weddingTime", color = activeTheme.textColor.copy(alpha = 0.9f), fontSize = 11.sp)
+                                Text("🗓  $weddingDate", color = activeTheme.accentColor, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
+                                Text("⏰  $weddingTime", color = activeTheme.textColor.copy(alpha = 0.9f), fontSize = 10.5.sp)
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text("📍  $venue", color = activeTheme.textColor, fontSize = 10.5.sp, textAlign = TextAlign.Center, maxLines = 2)
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("📍  $venue", color = activeTheme.textColor, fontSize = 11.sp, textAlign = TextAlign.Center, maxLines = 2)
-                                Spacer(modifier = Modifier.height(6.dp))
-                                Text("RSVP: $rsvp", color = activeTheme.accentColor, fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                                Text("RSVP: $rsvp", color = activeTheme.accentColor, fontSize = 9.5.sp, fontWeight = FontWeight.Medium)
 
                                 if (hasWatermark) {
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Spacer(modifier = Modifier.height(6.dp))
                                     Surface(
                                         color = Color.Black.copy(alpha = 0.6f),
                                         shape = RoundedCornerShape(8.dp)
@@ -288,7 +400,7 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
                                         Text(
                                             "⚡ Created with OmniTools App",
                                             color = Color.White,
-                                            fontSize = 9.sp,
+                                            fontSize = 8.5.sp,
                                             fontWeight = FontWeight.Medium,
                                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                         )
@@ -322,7 +434,7 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(
                     onClick = {
-                        val bmp = renderWeddingCardBitmap(brideName, groomName, weddingDate, weddingTime, venue, rsvp, tagline, activeTheme, hasWatermark = true)
+                        val bmp = renderWeddingCardBitmap(brideName, groomName, weddingDate, weddingTime, venue, rsvp, tagline, activeTheme, hasWatermark = true, brideBitmap, groomBitmap)
                         ImageExportUtils.saveBitmapToGallery(context, bmp, "WeddingCard_Free")
                     },
                     modifier = Modifier.weight(1f)
@@ -333,7 +445,7 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
                 }
                 OutlinedButton(
                     onClick = {
-                        val bmp = renderWeddingCardBitmap(brideName, groomName, weddingDate, weddingTime, venue, rsvp, tagline, activeTheme, hasWatermark = true)
+                        val bmp = renderWeddingCardBitmap(brideName, groomName, weddingDate, weddingTime, venue, rsvp, tagline, activeTheme, hasWatermark = true, brideBitmap, groomBitmap)
                         ImageExportUtils.shareBitmap(context, bmp, "Wedding Invitation - $brideName & $groomName")
                     },
                     modifier = Modifier.weight(1f)
@@ -341,6 +453,141 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
                     Icon(Icons.Filled.Share, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Share Card")
+                }
+            }
+
+            // BRIDE & GROOM PHOTO SECTION
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.AddAPhoto, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Add Photos on Card 📸 (Optional)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    }
+                    Text(
+                        "Upload Bride & Groom photos from your gallery to show in royal golden frames on your invitation card!",
+                        fontSize = 11.5.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Bride Photo Selector Card
+                        OutlinedCard(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable {
+                                    bridePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                },
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.5.dp, if (brideBitmap != null) Color(0xFF059669) else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                if (brideBitmap != null) {
+                                    Image(
+                                        bitmap = brideBitmap!!.asImageBitmap(),
+                                        contentDescription = "Bride Photo",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(54.dp)
+                                            .clip(CircleShape)
+                                            .border(2.dp, Color(0xFF059669), CircleShape)
+                                    )
+                                    Text("Bride Added ✓", fontSize = 11.sp, color = Color(0xFF059669), fontWeight = FontWeight.Bold)
+                                    TextButton(
+                                        onClick = {
+                                            brideBitmap = null
+                                            bridePhotoUri = null
+                                        },
+                                        contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                                    ) {
+                                        Text("Remove", fontSize = 10.5.sp, color = Color(0xFFEF4444))
+                                    }
+                                } else {
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        modifier = Modifier.size(46.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Icon(Icons.Filled.AddAPhoto, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                        }
+                                    }
+                                    Text("Bride Photo", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text("Tap to upload", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                        }
+
+                        // Groom Photo Selector Card
+                        OutlinedCard(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable {
+                                    groomPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                },
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.5.dp, if (groomBitmap != null) Color(0xFF059669) else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                if (groomBitmap != null) {
+                                    Image(
+                                        bitmap = groomBitmap!!.asImageBitmap(),
+                                        contentDescription = "Groom Photo",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(54.dp)
+                                            .clip(CircleShape)
+                                            .border(2.dp, Color(0xFF059669), CircleShape)
+                                    )
+                                    Text("Groom Added ✓", fontSize = 11.sp, color = Color(0xFF059669), fontWeight = FontWeight.Bold)
+                                    TextButton(
+                                        onClick = {
+                                            groomBitmap = null
+                                            groomPhotoUri = null
+                                        },
+                                        contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                                    ) {
+                                        Text("Remove", fontSize = 10.5.sp, color = Color(0xFFEF4444))
+                                    }
+                                } else {
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        modifier = Modifier.size(46.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Icon(Icons.Filled.AddAPhoto, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                        }
+                                    }
+                                    Text("Groom Photo", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text("Tap to upload", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -385,6 +632,46 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
     }
 }
 
+private fun drawCircularBitmap(
+    canvas: Canvas,
+    source: Bitmap,
+    centerX: Float,
+    centerY: Float,
+    radius: Float,
+    borderColor: Int,
+    borderWidth: Float
+) {
+    try {
+        val size = (radius * 2).toInt()
+        if (size <= 0) return
+        val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val tempCanvas = Canvas(output)
+        val paint = Paint().apply { isAntiAlias = true }
+        tempCanvas.drawCircle(radius, radius, radius, paint)
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        val minDim = Math.min(source.width, source.height)
+        val srcX = (source.width - minDim) / 2
+        val srcY = (source.height - minDim) / 2
+        val srcRect = Rect(srcX, srcY, srcX + minDim, srcY + minDim)
+        val dstRect = Rect(0, 0, size, size)
+        tempCanvas.drawBitmap(source, srcRect, dstRect, paint)
+
+        // Draw clipped circle on destination canvas
+        canvas.drawBitmap(output, centerX - radius, centerY - radius, null)
+
+        // Draw royal gold border
+        val borderPaint = Paint().apply {
+            isAntiAlias = true
+            style = Paint.Style.STROKE
+            color = borderColor
+            this.strokeWidth = borderWidth
+        }
+        canvas.drawCircle(centerX, centerY, radius, borderPaint)
+    } catch (e: Exception) {
+        // Fallback safely
+    }
+}
+
 private fun renderWeddingCardBitmap(
     bride: String,
     groom: String,
@@ -394,7 +681,9 @@ private fun renderWeddingCardBitmap(
     rsvp: String,
     tagline: String,
     theme: WeddingTheme,
-    hasWatermark: Boolean
+    hasWatermark: Boolean,
+    brideBitmap: Bitmap? = null,
+    groomBitmap: Bitmap? = null
 ): Bitmap {
     val width = 1080
     val height = 1440
@@ -438,45 +727,74 @@ private fun renderWeddingCardBitmap(
     textPaint.color = theme.accentColor.toArgb()
     textPaint.textSize = 38f
     textPaint.isFakeBoldText = true
-    canvas.drawText("॥ श्री गणेशाय नमः ॥", width / 2f, 180f, textPaint)
+    canvas.drawText("॥ श्री गणेशाय नमः ॥", width / 2f, 170f, textPaint)
 
     // Tagline
     textPaint.color = theme.textColor.toArgb()
-    textPaint.textSize = 30f
+    textPaint.textSize = 28f
     textPaint.isFakeBoldText = false
-    canvas.drawText(tagline, width / 2f, 260f, textPaint)
+    canvas.drawText(tagline, width / 2f, 240f, textPaint)
+
+    val hasPhotos = (brideBitmap != null || groomBitmap != null)
+
+    // Draw Bride & Groom Photos if present
+    if (hasPhotos) {
+        val photoY = 410f
+        val photoRadius = 110f
+        if (brideBitmap != null && groomBitmap != null) {
+            // Draw Bride Photo
+            drawCircularBitmap(canvas, brideBitmap, width * 0.32f, photoY, photoRadius, theme.borderColor.toArgb(), 8f)
+            // Draw Groom Photo
+            drawCircularBitmap(canvas, groomBitmap, width * 0.68f, photoY, photoRadius, theme.borderColor.toArgb(), 8f)
+
+            // Draw decorative & between photos
+            val heartPaint = Paint().apply {
+                isAntiAlias = true
+                textAlign = Paint.Align.CENTER
+                textSize = 50f
+                color = theme.accentColor.toArgb()
+            }
+            canvas.drawText("❤", width / 2f, photoY + 18f, heartPaint)
+        } else if (brideBitmap != null) {
+            drawCircularBitmap(canvas, brideBitmap, width / 2f, photoY, 130f, theme.borderColor.toArgb(), 10f)
+        } else if (groomBitmap != null) {
+            drawCircularBitmap(canvas, groomBitmap, width / 2f, photoY, 130f, theme.borderColor.toArgb(), 10f)
+        }
+    }
 
     // Couple Names
-    textPaint.textSize = 72f
+    val namesStartY = if (hasPhotos) 630f else 540f
+    textPaint.textSize = if (hasPhotos) 64f else 72f
     textPaint.isFakeBoldText = true
     textPaint.color = theme.textColor.toArgb()
-    canvas.drawText(bride, width / 2f, 540f, textPaint)
+    canvas.drawText(bride, width / 2f, namesStartY, textPaint)
 
-    textPaint.textSize = 54f
+    textPaint.textSize = if (hasPhotos) 48f else 54f
     textPaint.color = theme.accentColor.toArgb()
-    canvas.drawText("&", width / 2f, 630f, textPaint)
+    canvas.drawText("&", width / 2f, namesStartY + 80f, textPaint)
 
-    textPaint.textSize = 72f
+    textPaint.textSize = if (hasPhotos) 64f else 72f
     textPaint.color = theme.textColor.toArgb()
-    canvas.drawText(groom, width / 2f, 720f, textPaint)
+    canvas.drawText(groom, width / 2f, namesStartY + 160f, textPaint)
 
     // Date & Time
+    val dateStartY = if (hasPhotos) 980f else 960f
     textPaint.textSize = 38f
     textPaint.color = theme.accentColor.toArgb()
-    canvas.drawText("🗓  $date", width / 2f, 960f, textPaint)
+    canvas.drawText("🗓  $date", width / 2f, dateStartY, textPaint)
 
     textPaint.textSize = 34f
     textPaint.color = theme.textColor.toArgb()
-    canvas.drawText("⏰  $time", width / 2f, 1030f, textPaint)
+    canvas.drawText("⏰  $time", width / 2f, dateStartY + 65f, textPaint)
 
     // Venue
     textPaint.textSize = 32f
-    canvas.drawText("📍  $venue", width / 2f, 1140f, textPaint)
+    canvas.drawText("📍  $venue", width / 2f, dateStartY + 165f, textPaint)
 
     // RSVP
     textPaint.textSize = 30f
     textPaint.color = theme.accentColor.toArgb()
-    canvas.drawText("RSVP: $rsvp", width / 2f, 1260f, textPaint)
+    canvas.drawText("RSVP: $rsvp", width / 2f, dateStartY + 270f, textPaint)
 
     // Watermark if active
     if (hasWatermark) {

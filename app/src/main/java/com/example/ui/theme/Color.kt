@@ -21,7 +21,7 @@ val TextSecondaryDark = Color(0xFF94A3B8)
 val TextMutedDark = Color(0xFF64748B)
 
 // Light Palette
-val SlateBgLight = Color(0xFFF8FAFC)
+val SlateBgLight = Color(0xFFF1F5F9) // Clean modern surface contrast
 val SlateSurfaceLight = Color(0xFFFFFFFF)
 val SlateCardLight = Color(0xFFFFFFFF)
 val SlateBorderLight = Color(0xFFE2E8F0)

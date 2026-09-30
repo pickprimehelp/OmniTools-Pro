@@ -162,6 +162,7 @@ fun HomeScreen(
     }
 
     Scaffold(
+        containerColor = Color(0xFFF1F5F9),
         topBar = {
             Column {
                 TopAppBar(
@@ -232,7 +233,7 @@ fun HomeScreen(
                             }
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
                 )
 
                 // Banner ad sits cleanly below TopAppBar without overlapping status bar
@@ -247,6 +248,70 @@ fun HomeScreen(
             contentPadding = PaddingValues(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Hero Welcome Banner (when not searching)
+            if (searchQuery.isBlank() && selectedCategory == ToolCategory.ALL) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF4F46E5)),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.linearGradient(
+                                        colors = listOf(
+                                            Color(0xFF4338CA),
+                                            Color(0xFF6366F1),
+                                            Color(0xFF8B5CF6)
+                                        )
+                                    )
+                                )
+                                .padding(18.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Surface(
+                                        color = Color.White.copy(alpha = 0.2f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(
+                                            "ALL-IN-ONE SMART SUITE ✨",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                        )
+                                    }
+                                    Spacer(Modifier.height(6.dp))
+                                    Text(
+                                        "40+ Super Tools Pro",
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = Color.White
+                                    )
+                                    Spacer(Modifier.height(3.dp))
+                                    Text(
+                                        "Design cards, create invoices with GST, convert PDFs, change voice & calculate fast!",
+                                        fontSize = 11.5.sp,
+                                        color = Color.White.copy(alpha = 0.9f),
+                                        lineHeight = 15.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             // Featured Tools Carousel (shown when not searching)
             if (searchQuery.isBlank() && selectedCategory == ToolCategory.ALL) {
                 item {
@@ -297,24 +362,35 @@ fun HomeScreen(
                     ) {
                         ToolCategory.values().forEach { cat ->
                             val isSelected = selectedCategory == cat
-                            FilterChip(
-                                selected = isSelected,
+                            val count = if (cat == ToolCategory.ALL) ToolRegistry.allTools.size
+                            else ToolRegistry.allTools.count { it.category == cat }
+                            Surface(
                                 onClick = { selectedCategory = cat },
-                                label = {
-                                    val count = if (cat == ToolCategory.ALL) ToolRegistry.allTools.size
-                                    else ToolRegistry.allTools.count { it.category == cat }
-                                    Text("${cat.title} ($count)")
-                                },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = cat.badgeColor.copy(alpha = 0.2f),
-                                    selectedLabelColor = cat.badgeColor
-                                ),
-                                border = FilterChipDefaults.filterChipBorder(
-                                    enabled = true,
-                                    selected = isSelected,
-                                    borderColor = if (isSelected) cat.badgeColor else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                                )
-                            )
+                                shape = RoundedCornerShape(20.dp),
+                                color = if (isSelected) cat.badgeColor else Color.White,
+                                shadowElevation = if (isSelected) 3.dp else 1.dp,
+                                border = if (!isSelected) BorderStroke(1.dp, Color(0xFFE2E8F0)) else null,
+                                modifier = Modifier.height(36.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(7.dp)
+                                            .clip(CircleShape)
+                                            .background(if (isSelected) Color.White else cat.badgeColor)
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        text = "${cat.title} ($count)",
+                                        color = if (isSelected) Color.White else Color(0xFF334155),
+                                        fontSize = 11.5.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -620,24 +696,53 @@ fun FeaturedToolCard(
 ) {
     Card(
         modifier = Modifier
-            .width(220.dp)
-            .clickable(onClick = onClick)
-            .shadow(4.dp, RoundedCornerShape(16.dp)),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))
+            .width(225.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.5.dp, pressedElevation = 6.dp),
+        border = BorderStroke(1.dp, Color(0xFFE2E8F0).copy(alpha = 0.8f))
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(tool.iconColor.copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
             ) {
-                Icon(tool.icon, contentDescription = null, tint = tool.iconColor, modifier = Modifier.size(24.dp))
+                // Modern 3D Gradient Icon Badge
+                Box(
+                    modifier = Modifier
+                        .size(46.dp)
+                        .shadow(4.dp, RoundedCornerShape(14.dp), spotColor = tool.iconColor.copy(alpha = 0.5f))
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    tool.iconColor,
+                                    tool.iconColor.copy(alpha = 0.8f)
+                                )
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(tool.icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
+                }
+
+                Surface(
+                    color = tool.category.badgeColor.copy(alpha = 0.12f),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        "PRO",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = tool.category.badgeColor,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
             }
 
             Text(
@@ -669,9 +774,10 @@ fun ToolCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp, pressedElevation = 6.dp),
+        border = BorderStroke(1.dp, Color(0xFFE2E8F0).copy(alpha = 0.8f))
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
@@ -682,26 +788,36 @@ fun ToolCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
+                // Modern 3D Gradient Icon Badge
                 Box(
                     modifier = Modifier
-                        .size(42.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(tool.iconColor.copy(alpha = 0.15f)),
+                        .size(44.dp)
+                        .shadow(4.dp, RoundedCornerShape(13.dp), spotColor = tool.iconColor.copy(alpha = 0.5f))
+                        .clip(RoundedCornerShape(13.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    tool.iconColor,
+                                    tool.iconColor.copy(alpha = 0.8f)
+                                )
+                            )
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(tool.icon, contentDescription = null, tint = tool.iconColor, modifier = Modifier.size(22.dp))
+                    Icon(tool.icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
                 }
 
                 if (tool.isPopular) {
                     Surface(
-                        color = tool.iconColor.copy(alpha = 0.15f),
-                        shape = RoundedCornerShape(6.dp)
+                        color = Color(0xFFFF3366),
+                        shape = RoundedCornerShape(8.dp),
+                        shadowElevation = 1.dp
                     ) {
                         Text(
-                            "HOT",
-                            fontSize = 9.sp,
+                            "HOT 🔥",
+                            fontSize = 8.5.sp,
                             fontWeight = FontWeight.Bold,
-                            color = tool.iconColor,
+                            color = Color.White,
                             modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
                         )
                     }
@@ -711,7 +827,7 @@ fun ToolCard(
             Text(
                 text = tool.title,
                 fontWeight = FontWeight.Bold,
-                fontSize = 13.sp,
+                fontSize = 13.5.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -724,6 +840,19 @@ fun ToolCard(
                 overflow = TextOverflow.Ellipsis,
                 lineHeight = 14.sp
             )
+
+            Surface(
+                color = tool.category.badgeColor.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(6.dp)
+            ) {
+                Text(
+                    text = tool.category.title,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = tool.category.badgeColor,
+                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                )
+            }
         }
     }
 }
