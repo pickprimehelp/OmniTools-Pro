@@ -158,7 +158,6 @@ fun TextToPdfScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Text → PDF Maker") },
                     navigationIcon = {
@@ -168,6 +167,7 @@ fun TextToPdfScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -237,7 +237,6 @@ fun WordAndCharacterCounterScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Word & Character Counter") },
                     navigationIcon = {
@@ -247,6 +246,7 @@ fun WordAndCharacterCounterScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -361,7 +361,6 @@ fun CaseConverterScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Case Converter") },
                     navigationIcon = {
@@ -371,6 +370,7 @@ fun CaseConverterScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->

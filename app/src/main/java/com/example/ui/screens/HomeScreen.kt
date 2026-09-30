@@ -163,9 +163,6 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             Column {
-                // Top Banner Ad has priority space at top
-                TopBannerAd()
-
                 TopAppBar(
                     title = {
                         if (isSearchVisible) {
@@ -236,6 +233,9 @@ fun HomeScreen(
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+
+                // Banner ad sits cleanly below TopAppBar without overlapping status bar
+                TopBannerAd()
             }
         }
     ) { padding ->

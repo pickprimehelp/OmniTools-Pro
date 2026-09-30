@@ -271,7 +271,6 @@ fun VoiceChangerScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Voice Changer Tools") },
                     navigationIcon = {
@@ -281,6 +280,7 @@ fun VoiceChangerScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->

@@ -125,7 +125,6 @@ fun InvoiceBillMakerScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Invoice & Bill Maker") },
                     navigationIcon = {
@@ -135,6 +134,7 @@ fun InvoiceBillMakerScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -470,7 +470,6 @@ fun GstCalculatorScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("GST Calculator") },
                     navigationIcon = {
@@ -480,6 +479,7 @@ fun GstCalculatorScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -591,7 +591,6 @@ fun EmiCalculatorScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("EMI Calculator") },
                     navigationIcon = {
@@ -601,6 +600,7 @@ fun EmiCalculatorScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -706,7 +706,6 @@ fun ProfitDiscountCalculatorScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Profit Margin & Markup") },
                     navigationIcon = {
@@ -716,6 +715,7 @@ fun ProfitDiscountCalculatorScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->

@@ -125,7 +125,6 @@ fun YouTubeTitleGeneratorScreen(isShortsMode: Boolean = false, onBack: () -> Uni
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text(if (isShortsMode) "Shorts Title Generator" else "YouTube Title Generator") },
                     navigationIcon = {
@@ -135,6 +134,7 @@ fun YouTubeTitleGeneratorScreen(isShortsMode: Boolean = false, onBack: () -> Uni
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -251,7 +251,6 @@ fun HashtagAndTagGeneratorScreen(isTagMode: Boolean = false, onBack: () -> Unit)
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text(if (isTagMode) "SEO Video Tag Generator" else "Hashtag Generator") },
                     navigationIcon = {
@@ -261,6 +260,7 @@ fun HashtagAndTagGeneratorScreen(isTagMode: Boolean = false, onBack: () -> Unit)
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -334,7 +334,6 @@ fun YouTubeRevenueCalculatorScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("YouTube Revenue Calculator") },
                     navigationIcon = {
@@ -344,6 +343,7 @@ fun YouTubeRevenueCalculatorScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -460,7 +460,6 @@ fun VideoFileSizeCalculatorScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Video File Size Calculator") },
                     navigationIcon = {
@@ -470,6 +469,7 @@ fun VideoFileSizeCalculatorScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->

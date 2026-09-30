@@ -105,7 +105,6 @@ fun QrCodeGeneratorScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("QR Code Generator") },
                     navigationIcon = {
@@ -115,6 +114,7 @@ fun QrCodeGeneratorScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -239,7 +239,6 @@ fun AgeCalculatorScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Age Calculator") },
                     navigationIcon = {
@@ -249,6 +248,7 @@ fun AgeCalculatorScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -358,7 +358,6 @@ fun BmiCalculatorScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("BMI Calculator") },
                     navigationIcon = {
@@ -368,6 +367,7 @@ fun BmiCalculatorScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -456,7 +456,6 @@ fun StopwatchAndTimerScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Precision Stopwatch") },
                     navigationIcon = {
@@ -466,6 +465,7 @@ fun StopwatchAndTimerScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -566,7 +566,6 @@ fun UnitConverterScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Universal Unit Converter") },
                     navigationIcon = {
@@ -576,6 +575,7 @@ fun UnitConverterScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->

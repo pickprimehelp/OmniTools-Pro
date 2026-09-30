@@ -207,7 +207,6 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Wedding Card Maker") },
                     navigationIcon = {
@@ -217,6 +216,7 @@ fun WeddingCardMakerScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -552,7 +552,6 @@ fun StatusMakerScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Status Maker Tools") },
                     navigationIcon = {
@@ -562,6 +561,7 @@ fun StatusMakerScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -852,7 +852,6 @@ fun InvitationCardMakerScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Invitation Card Maker") },
                     navigationIcon = {
@@ -862,6 +861,7 @@ fun InvitationCardMakerScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -1055,7 +1055,6 @@ fun ReelsMakerScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("Reels & Story Maker") },
                     navigationIcon = {
@@ -1065,6 +1064,7 @@ fun ReelsMakerScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->
@@ -1354,7 +1354,6 @@ fun YouTubeThumbnailMakerScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             Column {
-                TopBannerAd()
                 TopAppBar(
                     title = { Text("YouTube Thumbnail Maker") },
                     navigationIcon = {
@@ -1364,6 +1363,7 @@ fun YouTubeThumbnailMakerScreen(onBack: () -> Unit) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
+                TopBannerAd()
             }
         }
     ) { padding ->

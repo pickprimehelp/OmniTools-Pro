@@ -207,38 +207,21 @@ object AdManager {
 }
 
 /**
- * Clean Top Banner Ad Composable placed at the very top of screens.
- * Google Play compliant: doesn't overlap tools or input fields.
+ * Clean Banner Ad Composable placed below the TopAppBar in empty space.
+ * Google Play compliant: doesn't overlap phone status bar, tools, or input fields.
  */
 @Composable
 fun TopBannerAd(
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     var isAdFailed by remember { mutableStateOf(false) }
 
-    if (isAdFailed) {
-        // Subtle placeholder that keeps layout stable without jarring shift
+    if (!isAdFailed) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .height(48.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "OmniTools Pro • 40+ All-in-One Utilities",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                fontSize = 11.sp
-            )
-        }
-    } else {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(top = 2.dp, bottom = 4.dp),
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(vertical = 4.dp),
             contentAlignment = Alignment.Center
         ) {
             AndroidView(
