@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK & Play Store AAB
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: Build & Generate APK
+    name: Build APK & Play Store AAB
     runs-on: ubuntu-latest
 
     steps:
@@ -23,15 +23,20 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Prepare Keystore and Environment
+      - name: Prepare Keystores and Environment
         run: |
           touch .env
+          # Generate debug.keystore if missing
           if [ ! -f debug.keystore ]; then
             if [ -f debug.keystore.base64 ]; then
               base64 -d debug.keystore.base64 > debug.keystore
             else
               keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
             fi
+          fi
+          # Generate release upload key for Google Play AAB
+          if [ ! -f my-upload-key.jks ]; then
+            keytool -genkey -v -keystore my-upload-key.jks -storepass android123 -alias upload -keypass android123 -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=OmniTools,O=OmniTools,C=IN"
           fi
 
       - name: Grant Execute Permission to gradlew
@@ -41,8 +46,22 @@ jobs:
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-      - name: Build Debug APK
+      - name: Build Play Store AAB Bundle
+        env:
+          KEYSTORE_PATH: ${{ github.workspace }}/my-upload-key.jks
+          STORE_PASSWORD: android123
+          KEY_PASSWORD: android123
+        run: ./gradlew bundleRelease --stacktrace --no-daemon
+
+      - name: Build Debug APK for Testing
         run: ./gradlew assembleDebug --stacktrace --no-daemon
+
+      - name: Upload Play Store AAB Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: OmniTools-PlayStore-AAB
+          path: app/build/outputs/bundle/release/*.aab
+          retention-days: 14
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
