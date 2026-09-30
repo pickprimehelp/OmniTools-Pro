@@ -1,0 +1,7 @@
+{
+  "name": "OmniTools",
+  "description": "All-in-one Smart Tools kit: Wedding Card Maker, Status & Reel Maker, Thumbnail Maker, Invoicing with GST, Voice Changer, Image & PDF Tools, Business & Daily Utilities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
