@@ -44,7 +44,7 @@ object AdManager {
      * Set USE_TEST_ADS = true  -> Tests ads safely with Google Official Test IDs
      * Set USE_TEST_ADS = false -> Shows your Real AdMob Ads for Play Store release
      */
-    const val USE_TEST_ADS = true
+    const val USE_TEST_ADS = false
 
     // --- 🧪 OFFICIAL GOOGLE TEST ADS IDS (Safe for testing, 100% fill rate) ---
     const val TEST_APP_ID = "ca-app-pub-3940256099942544~3347511713"
