@@ -3,7 +3,7 @@
     <item
         android:width="66dp"
         android:height="66dp"
-        android:drawable="@drawable/omnitools_icon_1790698596305"
+        android:drawable="@drawable/ic_app_icon_1790780251023"
         android:gravity="center" />
 </layer-list>
 
