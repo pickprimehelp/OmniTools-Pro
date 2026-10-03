@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -157,6 +158,17 @@ fun FontsMakerScreen(onBack: () -> Unit) {
         )
     }
 
+    // RGB Text Studio States
+    var rgbRed by remember { mutableFloatStateOf(255f) }
+    var rgbGreen by remember { mutableFloatStateOf(45f) }
+    var rgbBlue by remember { mutableFloatStateOf(120f) }
+    var rgbFontSize by remember { mutableFloatStateOf(26f) }
+    var rgbGlowEffect by remember { mutableStateOf(true) }
+
+    fun currentRgbColor(): Color = Color(rgbRed.toInt().coerceIn(0, 255), rgbGreen.toInt().coerceIn(0, 255), rgbBlue.toInt().coerceIn(0, 255))
+    fun currentHexCode(): String = String.format("#%02X%02X%02X", rgbRed.toInt().coerceIn(0, 255), rgbGreen.toInt().coerceIn(0, 255), rgbBlue.toInt().coerceIn(0, 255))
+    fun currentRgbString(): String = "rgb(${rgbRed.toInt().coerceIn(0, 255)}, ${rgbGreen.toInt().coerceIn(0, 255)}, ${rgbBlue.toInt().coerceIn(0, 255)})"
+
     fun saveCleanCardViaAd() {
         if (activity != null) {
             AdManager.showRewardedAd(
@@ -211,14 +223,20 @@ fun FontsMakerScreen(onBack: () -> Unit) {
                     Tab(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
-                        text = { Text("Multiple Fonts (${fontVariants.size})", fontWeight = FontWeight.SemiBold) },
-                        icon = { Icon(Icons.Filled.TextFields, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                        text = { Text("Fonts (${fontVariants.size})", fontWeight = FontWeight.SemiBold, fontSize = 12.sp) },
+                        icon = { Icon(Icons.Filled.TextFields, contentDescription = null, modifier = Modifier.size(17.dp)) }
                     )
                     Tab(
                         selected = selectedTab == 1,
                         onClick = { selectedTab = 1 },
-                        text = { Text("Colour Font Art", fontWeight = FontWeight.SemiBold) },
-                        icon = { Icon(Icons.Filled.FormatPaint, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                        text = { Text("Colour Art", fontWeight = FontWeight.SemiBold, fontSize = 12.sp) },
+                        icon = { Icon(Icons.Filled.FormatPaint, contentDescription = null, modifier = Modifier.size(17.dp)) }
+                    )
+                    Tab(
+                        selected = selectedTab == 2,
+                        onClick = { selectedTab = 2 },
+                        text = { Text("RGB Studio 🌈", fontWeight = FontWeight.SemiBold, fontSize = 12.sp) },
+                        icon = { Icon(Icons.Filled.Palette, contentDescription = null, modifier = Modifier.size(17.dp)) }
                     )
                 }
             }
@@ -228,6 +246,7 @@ fun FontsMakerScreen(onBack: () -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .imePadding()
         ) {
             // Shared Input Field
             Box(modifier = Modifier.padding(16.dp)) {
@@ -251,13 +270,14 @@ fun FontsMakerScreen(onBack: () -> Unit) {
                 )
             }
 
-            if (selectedTab == 0) {
-                // TAB 0: Multiple Fonts Generator List
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
+            when (selectedTab) {
+                0 -> {
+                    // TAB 0: Multiple Fonts Generator List
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 120.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
                     item {
                         Text(
                             "Tap 'Copy' to paste anywhere (Instagram Bio, WhatsApp, BGMI, TikTok)",
@@ -324,9 +344,10 @@ fun FontsMakerScreen(onBack: () -> Unit) {
                         }
                     }
                 }
-            } else {
-                // TAB 1: Colour Font & Text Art Designer
-                Column(
+                }
+                1 -> {
+                    // TAB 1: Colour Font & Text Art Designer
+                    Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
@@ -529,10 +550,319 @@ fun FontsMakerScreen(onBack: () -> Unit) {
                             valueRange = 16f..46f
                         )
                     }
+                    Spacer(Modifier.height(180.dp))
+                }
+            }
+            2 -> {
+                // TAB 2: RGB Text Studio & Colour Code Generator
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    val activeRgbColor = currentRgbColor()
+                    val hexCode = currentHexCode()
+                    val rgbString = currentRgbString()
+                    val displayText = inputText.ifBlank { "OmniTools RGB" }
+
+                    // Live Glowing RGB Preview Card
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1.25f)
+                            .shadow(14.dp, RoundedCornerShape(20.dp)),
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(2.dp, activeRgbColor)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.verticalGradient(
+                                        listOf(Color(0xFF0F172A), Color(0xFF020617))
+                                    )
+                                )
+                                .padding(20.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                // Header Info Badges
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Surface(
+                                        color = activeRgbColor.copy(alpha = 0.2f),
+                                        shape = RoundedCornerShape(8.dp),
+                                        border = BorderStroke(1.dp, activeRgbColor)
+                                    ) {
+                                        Text(
+                                            text = hexCode,
+                                            color = activeRgbColor,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                        )
+                                    }
+
+                                    Surface(
+                                        color = Color.Black.copy(alpha = 0.5f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(
+                                            text = rgbString,
+                                            color = Color.White.copy(alpha = 0.9f),
+                                            fontSize = 11.sp,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                        )
+                                    }
+                                }
+
+                                // Main Glowing RGB Text
+                                Text(
+                                    text = displayText,
+                                    color = activeRgbColor,
+                                    fontSize = rgbFontSize.sp,
+                                    fontWeight = FontWeight.Black,
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = (rgbFontSize * 1.3f).sp
+                                )
+
+                                if (hasWatermark) {
+                                    Surface(
+                                        color = Color.Black.copy(alpha = 0.6f),
+                                        shape = RoundedCornerShape(6.dp)
+                                    ) {
+                                        Text(
+                                            "⚡ Made with OmniTools App",
+                                            color = Color.White,
+                                            fontSize = 9.sp,
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                } else {
+                                    Spacer(Modifier.height(10.dp))
+                                }
+                            }
+                        }
+                    }
+
+                    // Watermark Unlock Bar
+                    WatermarkControlBar(
+                        hasWatermark = hasWatermark,
+                        onWatchAdToSaveClean = {
+                            if (activity != null) {
+                                AdManager.showRewardedAd(
+                                    activity = activity,
+                                    onRewardEarned = {
+                                        val bmp = renderRgbFontCardBitmap(displayText, activeRgbColor, rgbFontSize, hasWatermark = false)
+                                        ImageExportUtils.saveBitmapToGallery(context, bmp, "RGBText_NoWatermark")
+                                        Toast.makeText(context, "Saved without watermark! Next export will require video ad again.", Toast.LENGTH_LONG).show()
+                                        hasWatermark = true
+                                    },
+                                    onDismissed = { hasWatermark = true }
+                                )
+                            } else {
+                                val bmp = renderRgbFontCardBitmap(displayText, activeRgbColor, rgbFontSize, hasWatermark = false)
+                                ImageExportUtils.saveBitmapToGallery(context, bmp, "RGBText_NoWatermark")
+                            }
+                        }
+                    )
+
+                    // Save & Share Buttons
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Button(
+                            onClick = {
+                                if (activity != null) {
+                                    AdManager.showRewardedAd(
+                                        activity = activity,
+                                        onRewardEarned = {
+                                            val bmp = renderRgbFontCardBitmap(displayText, activeRgbColor, rgbFontSize, hasWatermark = false)
+                                            ImageExportUtils.saveBitmapToGallery(context, bmp, "RGBText_HD")
+                                            Toast.makeText(context, "Saved HD without watermark!", Toast.LENGTH_SHORT).show()
+                                            hasWatermark = true
+                                        },
+                                        onDismissed = { hasWatermark = true }
+                                    )
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669)),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(Icons.Filled.OndemandVideo, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Save HD (Ad 🎁)", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                val bmp = renderRgbFontCardBitmap(displayText, activeRgbColor, rgbFontSize, hasWatermark = true)
+                                ImageExportUtils.saveBitmapToGallery(context, bmp, "RGBText_Free")
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(Icons.Filled.Download, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Save Free", fontSize = 12.sp)
+                        }
+                    }
+
+                    // Quick 1-Tap Copy Options Card
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Text("1-Tap Copy Formats", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = { ImageExportUtils.copyToClipboard(context, hexCode, "HEX Color") },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Copy Hex", fontSize = 11.5.sp)
+                                }
+                                OutlinedButton(
+                                    onClick = { ImageExportUtils.copyToClipboard(context, rgbString, "RGB CSS") },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Copy RGB", fontSize = 11.5.sp)
+                                }
+                                OutlinedButton(
+                                    onClick = {
+                                        val html = "<span style=\"color:$hexCode;\">$displayText</span>"
+                                        ImageExportUtils.copyToClipboard(context, html, "HTML Colored Text")
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Copy HTML", fontSize = 11.5.sp)
+                                }
+                            }
+                        }
+                    }
+
+                    // Popular Neon RGB Presets
+                    Text("Popular RGB Neon Colors", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                    val neonPresets = listOf(
+                        "Cyber Pink" to Triple(255f, 0f, 128f),
+                        "Neon Cyan" to Triple(0f, 240f, 255f),
+                        "Electric Lime" to Triple(57f, 255f, 20f),
+                        "Ultra Violet" to Triple(180f, 0f, 255f),
+                        "Sunset Gold" to Triple(255f, 165f, 0f),
+                        "Lava Red" to Triple(255f, 30f, 30f),
+                        "Sky Ice" to Triple(0f, 190f, 255f),
+                        "Pure White" to Triple(255f, 255f, 255f)
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        neonPresets.forEach { (name, rgb) ->
+                            val color = Color(rgb.first.toInt(), rgb.second.toInt(), rgb.third.toInt())
+                            Surface(
+                                modifier = Modifier
+                                    .clickable {
+                                        rgbRed = rgb.first
+                                        rgbGreen = rgb.second
+                                        rgbBlue = rgb.third
+                                        hasWatermark = true
+                                    },
+                                shape = RoundedCornerShape(12.dp),
+                                color = color.copy(alpha = 0.15f),
+                                border = BorderStroke(1.5.dp, color)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(14.dp)
+                                            .clip(CircleShape)
+                                            .background(color)
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(name, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                                }
+                            }
+                        }
+                    }
+
+                    // Interactive RGB Sliders
+                    Text("Adjust Custom RGB Values", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+
+                    // Red Slider
+                    Column {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("🔴 Red (R)", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFEF4444))
+                            Text("${rgbRed.toInt()}", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Slider(
+                            value = rgbRed,
+                            onValueChange = { rgbRed = it; hasWatermark = true },
+                            valueRange = 0f..255f
+                        )
+                    }
+
+                    // Green Slider
+                    Column {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("🟢 Green (G)", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF10B981))
+                            Text("${rgbGreen.toInt()}", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Slider(
+                            value = rgbGreen,
+                            onValueChange = { rgbGreen = it; hasWatermark = true },
+                            valueRange = 0f..255f
+                        )
+                    }
+
+                    // Blue Slider
+                    Column {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("🔵 Blue (B)", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF3B82F6))
+                            Text("${rgbBlue.toInt()}", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Slider(
+                            value = rgbBlue,
+                            onValueChange = { rgbBlue = it; hasWatermark = true },
+                            valueRange = 0f..255f
+                        )
+                    }
+
+                    // Font Size Slider
+                    Column {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Text Font Size", fontSize = 13.sp)
+                            Text("${rgbFontSize.toInt()} sp", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Slider(
+                            value = rgbFontSize,
+                            onValueChange = { rgbFontSize = it },
+                            valueRange = 16f..48f
+                        )
+                    }
+
+                    Spacer(Modifier.height(180.dp))
                 }
             }
         }
     }
+}
 }
 
 // Bitmap Renderer for Colour Font Art
@@ -592,6 +922,81 @@ private fun renderFontCardBitmap(
     lines.forEachIndexed { i, line ->
         canvas.drawText(line.trim(), width / 2f, startY + (i * lineHeight), textPaint)
     }
+
+    if (hasWatermark) {
+        val wmBg = Paint().apply {
+            color = android.graphics.Color.argb(160, 0, 0, 0)
+        }
+        val wmText = Paint().apply {
+            color = android.graphics.Color.WHITE
+            textSize = 28f
+            isFakeBoldText = true
+            textAlign = Paint.Align.CENTER
+            isAntiAlias = true
+        }
+        canvas.drawRoundRect(RectF(width / 2f - 240f, height - 70f, width / 2f + 240f, height - 20f), 16f, 16f, wmBg)
+        canvas.drawText("⚡ Made with OmniTools App", width / 2f, height - 36f, wmText)
+    }
+
+    return bitmap
+}
+
+// Bitmap Renderer for RGB Text Studio
+private fun renderRgbFontCardBitmap(
+    text: String,
+    rgbColor: Color,
+    fontSize: Float,
+    hasWatermark: Boolean
+): Bitmap {
+    val width = 1080
+    val height = 900
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+
+    val bgPaint = Paint().apply {
+        shader = android.graphics.LinearGradient(
+            0f, 0f, 0f, height.toFloat(),
+            intArrayOf(android.graphics.Color.parseColor("#0F172A"), android.graphics.Color.parseColor("#020617")),
+            null,
+            android.graphics.Shader.TileMode.CLAMP
+        )
+    }
+    canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
+
+    // Border Frame
+    val borderPaint = Paint().apply {
+        color = rgbColor.toArgb()
+        style = Paint.Style.STROKE
+        strokeWidth = 8f
+    }
+    canvas.drawRoundRect(RectF(30f, 30f, width - 30f, height - 30f), 28f, 28f, borderPaint)
+
+    val textPaint = Paint().apply {
+        color = rgbColor.toArgb()
+        textSize = (fontSize * 2.3f).coerceIn(40f, 110f)
+        textAlign = Paint.Align.CENTER
+        isAntiAlias = true
+        isFakeBoldText = true
+    }
+
+    val lines = text.split("\n")
+    val lineHeight = textPaint.textSize * 1.35f
+    val totalHeight = lines.size * lineHeight
+    val startY = (height - totalHeight) / 2f + textPaint.textSize
+
+    lines.forEachIndexed { i, line ->
+        canvas.drawText(line.trim(), width / 2f, startY + (i * lineHeight), textPaint)
+    }
+
+    // Hex and RGB badges
+    val subPaint = Paint().apply {
+        color = android.graphics.Color.argb(180, 255, 255, 255)
+        textSize = 30f
+        textAlign = Paint.Align.CENTER
+        isAntiAlias = true
+    }
+    val hexStr = String.format("#%02X%02X%02X", (rgbColor.red * 255).toInt(), (rgbColor.green * 255).toInt(), (rgbColor.blue * 255).toInt())
+    canvas.drawText("HEX: $hexStr  •  RGB: (${(rgbColor.red * 255).toInt()}, ${(rgbColor.green * 255).toInt()}, ${(rgbColor.blue * 255).toInt()})", width / 2f, height - 120f, subPaint)
 
     if (hasWatermark) {
         val wmBg = Paint().apply {

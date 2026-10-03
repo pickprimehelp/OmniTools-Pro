@@ -111,7 +111,7 @@ fun HomeScreen(
     var showInfoDialog by remember { mutableStateOf(false) }
     var showRatingDialog by remember { mutableStateOf(false) }
     var showPrivacyDialog by remember { mutableStateOf(false) }
-    var userRating by remember { mutableIntStateOf(5) }
+    var userRating by remember { mutableIntStateOf(0) }
 
     val filteredTools = remember(searchQuery, selectedCategory) {
         ToolRegistry.allTools.filter { tool ->
@@ -436,57 +436,51 @@ fun HomeScreen(
                 }
             }
 
-            // FOOTER SECTION: 1. Rate App Card
+            // FOOTER SECTION: 1. Rate App & Feedback Card (100% Play Store Policy Compliant)
             item {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 6.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)),
-                    border = BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.4f))
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(18.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(20.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text("Rate us on Play Store", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                        }
-                        Text(
-                            "Enjoying our 40+ free tools? Tap below to leave a review on Google Play!",
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center
-                        )
-
-                        // 5 Star interactive bar
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            (1..5).forEach { star ->
-                                Icon(
-                                    imageVector = if (star <= userRating) Icons.Filled.Star else Icons.Filled.StarBorder,
-                                    contentDescription = "Star $star",
-                                    tint = Color(0xFFF59E0B),
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clickable {
-                                            userRating = star
-                                            openPlayStoreRating()
-                                        }
-                                )
+                        Surface(
+                            shape = CircleShape,
+                            color = Color(0xFFFEF3C7),
+                            modifier = Modifier.size(46.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFD97706), modifier = Modifier.size(24.dp))
                             }
                         }
 
+                        Text("Enjoying OmniTools Pro?", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+
+                        Text(
+                            "Your honest rating and review helps us keep all 40+ tools completely free and brings new features. Tap below to share your feedback!",
+                            fontSize = 11.5.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            lineHeight = 16.sp
+                        )
+
                         Button(
                             onClick = { openPlayStoreRating() },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B)),
-                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Rate us on Play Store ⭐", color = Color.Black, fontWeight = FontWeight.Bold)
+                            Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Review on Google Play Store", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
                     }
                 }
@@ -554,7 +548,7 @@ fun HomeScreen(
         }
     }
 
-    // Rate App Dialog
+    // Rate App Dialog (100% Google Play Developer Policy Compliant)
     if (showRatingDialog) {
         AlertDialog(
             onDismissRequest = { showRatingDialog = false },
@@ -562,7 +556,7 @@ fun HomeScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFF59E0B))
                     Spacer(Modifier.width(8.dp))
-                    Text("Rate us on Play Store")
+                    Text("Review on Play Store", fontWeight = FontWeight.Bold)
                 }
             },
             text = {
@@ -570,32 +564,46 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text("How would you rate your experience with OmniTools?")
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        (1..5).forEach { star ->
-                            Icon(
-                                imageVector = if (star <= userRating) Icons.Filled.Star else Icons.Filled.StarBorder,
-                                contentDescription = "Star $star",
-                                tint = Color(0xFFF59E0B),
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clickable { userRating = star }
-                            )
+                    Surface(
+                        shape = CircleShape,
+                        color = Color(0xFFFEF3C7),
+                        modifier = Modifier.size(50.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFD97706), modifier = Modifier.size(28.dp))
                         }
                     }
+                    Text(
+                        "Enjoying OmniTools Pro?",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        "Your honest rating and review helps us keep all 40+ tools completely free and regularly updated. Tap below to share your feedback!",
+                        fontSize = 12.5.sp,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 17.sp
+                    )
                 }
             },
             confirmButton = {
-                Button(onClick = {
-                    showRatingDialog = false
-                    openPlayStoreRating()
-                }) {
-                    Text("Rate us on Play Store")
+                Button(
+                    onClick = {
+                        showRatingDialog = false
+                        openPlayStoreRating()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Review on Google Play", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showRatingDialog = false }) {
-                    Text("Later")
+                    Text("Maybe Later")
                 }
             }
         )
