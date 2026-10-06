@@ -33,6 +33,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.example.billing.SubscriptionManager
 
 object AdManager {
     private const val TAG = "OmniToolsAds"
@@ -76,6 +77,7 @@ object AdManager {
 
     fun initialize(context: Context) {
         try {
+            SubscriptionManager.init(context)
             MobileAds.initialize(context) {
                 Log.d(TAG, "MobileAds initialized successfully")
                 preloadInterstitial(context)
@@ -144,6 +146,11 @@ object AdManager {
         forceShow: Boolean = false,
         onDismissed: () -> Unit
     ) {
+        if (SubscriptionManager.isVipActive()) {
+            onDismissed()
+            return
+        }
+
         screenChangeCount++
         val now = System.currentTimeMillis()
         val cooldownPassed = (now - lastInterstitialShownTime) > INTERSTITIAL_COOLDOWN_MS
@@ -179,6 +186,12 @@ object AdManager {
         onRewardEarned: () -> Unit,
         onDismissed: () -> Unit
     ) {
+        if (SubscriptionManager.isVipActive()) {
+            onRewardEarned()
+            onDismissed()
+            return
+        }
+
         val ad = rewardedAd
         if (ad != null) {
             ad.fullScreenContentCallback = object : FullScreenContentCallback() {
@@ -214,6 +227,10 @@ object AdManager {
 fun TopBannerAd(
     modifier: Modifier = Modifier
 ) {
+    if (SubscriptionManager.isVipActive()) {
+        return
+    }
+
     var isAdFailed by remember { mutableStateOf(false) }
 
     if (!isAdFailed) {

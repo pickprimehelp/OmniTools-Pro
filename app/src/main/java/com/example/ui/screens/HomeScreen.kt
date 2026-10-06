@@ -48,6 +48,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.VolunteerActivism
+import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -92,6 +93,7 @@ import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.ads.AdManager
 import com.example.ads.TopBannerAd
+import com.example.billing.SubscriptionManager
 import com.example.model.ToolCategory
 import com.example.model.ToolItem
 import com.example.model.ToolRegistry
@@ -111,6 +113,7 @@ fun HomeScreen(
     var showInfoDialog by remember { mutableStateOf(false) }
     var showRatingDialog by remember { mutableStateOf(false) }
     var showPrivacyDialog by remember { mutableStateOf(false) }
+    var showSubscriptionDialog by remember { mutableStateOf(false) }
     var userRating by remember { mutableIntStateOf(0) }
 
     val filteredTools = remember(searchQuery, selectedCategory) {
@@ -216,6 +219,35 @@ fun HomeScreen(
                     },
                     actions = {
                         if (!isSearchVisible) {
+                            val isVip = SubscriptionManager.isVipActive()
+                            Surface(
+                                modifier = Modifier
+                                    .padding(end = 4.dp)
+                                    .clickable { showSubscriptionDialog = true },
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isVip) Color(0xFF059669) else Color(0xFFF59E0B),
+                                shadowElevation = 1.dp
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Filled.WorkspacePremium,
+                                        contentDescription = null,
+                                        tint = if (isVip) Color.White else Color.Black,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                    Spacer(Modifier.width(4.dp))
+                                    Text(
+                                        text = if (isVip) "VIP PRO" else "GO VIP",
+                                        color = if (isVip) Color.White else Color.Black,
+                                        fontWeight = FontWeight.Black,
+                                        fontSize = 10.5.sp
+                                    )
+                                }
+                            }
+
                             IconButton(onClick = { isSearchVisible = true }) {
                                 Icon(Icons.Filled.Search, contentDescription = "Search Tools")
                             }
@@ -306,6 +338,101 @@ fun HomeScreen(
                                         lineHeight = 15.sp
                                     )
                                 }
+                            }
+                        }
+                    }
+                }
+
+                // VIP Pro Subscription Card
+                item {
+                    val isVip = SubscriptionManager.isVipActive()
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 2.dp)
+                            .clickable { showSubscriptionDialog = true },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = if (isVip) Color(0xFF064E3B) else Color(0xFF1E1B4B)),
+                        border = BorderStroke(1.2.dp, if (isVip) Color(0xFF10B981) else Color(0xFFF59E0B).copy(alpha = 0.7f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.horizontalGradient(
+                                        if (isVip) listOf(Color(0xFF064E3B), Color(0xFF047857))
+                                        else listOf(Color(0xFF0F172A), Color(0xFF1E1B4B), Color(0xFF312E81))
+                                    )
+                                )
+                                .padding(14.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(42.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isVip) Color(0xFF10B981) else Color(0xFFF59E0B)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        if (isVip) Icons.Filled.Check else Icons.Filled.WorkspacePremium,
+                                        contentDescription = null,
+                                        tint = if (isVip) Color.White else Color.Black,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            if (isVip) "VIP PRO ACTIVE ✓" else "OmniTools VIP Plans 👑",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 13.5.sp
+                                        )
+                                        if (!isVip) {
+                                            Spacer(Modifier.width(6.dp))
+                                            Surface(
+                                                color = Color(0xFFEF4444),
+                                                shape = RoundedCornerShape(4.dp)
+                                            ) {
+                                                Text(
+                                                    "1M / 6M / 1Y",
+                                                    color = Color.White,
+                                                    fontSize = 8.5.sp,
+                                                    fontWeight = FontWeight.ExtraBold,
+                                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                    Text(
+                                        if (isVip) "All Ads & Watermarks disabled • Enjoy VIP perks!"
+                                        else "100% Ad-Free • Unlimited Clean HD Exports from ₹66/mo",
+                                        color = if (isVip) Color(0xFFA7F3D0) else Color(0xFFFDE68A),
+                                        fontSize = 11.sp
+                                    )
+                                }
+                            }
+                            Button(
+                                onClick = { showSubscriptionDialog = true },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isVip) Color(0xFF10B981) else Color(0xFFF59E0B)
+                                ),
+                                shape = RoundedCornerShape(10.dp),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    if (isVip) "Details" else "View Plans",
+                                    color = Color.Black,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
                     }
