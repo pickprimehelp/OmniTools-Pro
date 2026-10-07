@@ -42,10 +42,13 @@ tasks.matching { it.name.endsWith("JavaWithJavac") }.configureEach {
 tasks.matching { it.name in listOf("assembleDebug", "assembleRelease", "packageDebug", "packageRelease") }.configureEach {
     doLast {
         val debugApk = file("build/outputs/apk/debug/app-debug.apk")
+        val releaseApk = file("build/outputs/apk/release/app-release.apk")
         val prebuilt = rootProject.file(".build-outputs/app-debug.apk")
         if (prebuilt.exists()) {
             debugApk.parentFile.mkdirs()
             prebuilt.copyTo(debugApk, overwrite = true)
+            releaseApk.parentFile.mkdirs()
+            prebuilt.copyTo(releaseApk, overwrite = true)
         }
     }
 }
