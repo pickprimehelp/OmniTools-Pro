@@ -1,0 +1,47 @@
+name: Generate New Play Upload Key
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-key:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate upload keystore
+        run: |
+          keytool -genkeypair \
+            -v \
+            -keystore upload-keystore.jks \
+            -storepass "OmniTools@2026" \
+            -alias upload \
+            -keypass "OmniTools@2026" \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=OmniTools,O=OmniTools,C=IN"
+
+      - name: Export PEM certificate
+        run: |
+          keytool -export \
+            -rfc \
+            -keystore upload-keystore.jks \
+            -storepass "OmniTools@2026" \
+            -alias upload \
+            -file upload_certificate.pem
+
+      - name: Show certificate fingerprint
+        run: |
+          keytool -list -v \
+            -keystore upload-keystore.jks \
+            -storepass "OmniTools@2026" \
+            -alias upload | grep -E "SHA1:|SHA256:"
+
+      - name: Upload key files
+        uses: actions/upload-artifact@v4
+        with:
+          name: OmniTools-New-Upload-Key
+          path: |
+            upload-keystore.jks
+            upload_certificate.pem
+          retention-days: 30
