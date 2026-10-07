@@ -78,6 +78,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playstore-upload-certificate
-          path: debug_certificate.pem
+          path: upload_certificate.pem
           if-no-files-found: warn
           retention-days: 30
