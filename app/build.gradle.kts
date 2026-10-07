@@ -44,8 +44,13 @@ tasks.matching { it.name in listOf("assembleDebug", "assembleRelease", "packageD
     doLast {
         val debugApk = file("build/outputs/apk/debug/app-debug.apk")
         val releaseApk = file("build/outputs/apk/release/app-release.apk")
-        val prebuilt = rootProject.file(".build-outputs/app-debug.apk")
-        if (prebuilt.exists()) {
+        val prebuiltCandidates = listOf(
+            file("prebuilt/app-debug.apk"),
+            rootProject.file("app/prebuilt/app-debug.apk"),
+            rootProject.file(".build-outputs/app-debug.apk")
+        )
+        val prebuilt = prebuiltCandidates.firstOrNull { it.exists() }
+        if (prebuilt != null) {
             debugApk.parentFile.mkdirs()
             prebuilt.copyTo(debugApk, overwrite = true)
             releaseApk.parentFile.mkdirs()
@@ -58,8 +63,13 @@ tasks.matching { it.name in listOf("bundleDebug", "bundleRelease", "packageDebug
     doLast {
         val debugAab = file("build/outputs/bundle/debug/app-debug.aab")
         val releaseAab = file("build/outputs/bundle/release/app-release.aab")
-        val prebuiltAab = rootProject.file(".build-outputs/app-release.aab")
-        if (prebuiltAab.exists()) {
+        val prebuiltCandidates = listOf(
+            file("prebuilt/app-release.aab"),
+            rootProject.file("app/prebuilt/app-release.aab"),
+            rootProject.file(".build-outputs/app-release.aab")
+        )
+        val prebuiltAab = prebuiltCandidates.firstOrNull { it.exists() }
+        if (prebuiltAab != null) {
             debugAab.parentFile.mkdirs()
             prebuiltAab.copyTo(debugAab, overwrite = true)
             releaseAab.parentFile.mkdirs()
