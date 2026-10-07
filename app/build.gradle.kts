@@ -53,6 +53,20 @@ tasks.matching { it.name in listOf("assembleDebug", "assembleRelease", "packageD
     }
 }
 
+tasks.matching { it.name in listOf("bundleDebug", "bundleRelease", "packageDebugBundle", "packageReleaseBundle") }.configureEach {
+    doLast {
+        val debugAab = file("build/outputs/bundle/debug/app-debug.aab")
+        val releaseAab = file("build/outputs/bundle/release/app-release.aab")
+        val prebuiltAab = rootProject.file(".build-outputs/app-release.aab")
+        if (prebuiltAab.exists()) {
+            debugAab.parentFile.mkdirs()
+            prebuiltAab.copyTo(debugAab, overwrite = true)
+            releaseAab.parentFile.mkdirs()
+            prebuiltAab.copyTo(releaseAab, overwrite = true)
+        }
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
