@@ -102,7 +102,7 @@ public final class CreatorToolsKt {
         final boolean isShortsMode2;
         Object obj;
         char c;
-        ?? r19;
+        int r19 = 1;
         Object obj2;
         Object obj3;
         MutableState tone$delegate;
@@ -196,7 +196,7 @@ public final class CreatorToolsKt {
             }
             final MutableState titles$delegate = (MutableState) obj4;
             ComposerKt.sourceInformationMarkerEnd($composer3);
-            boolean z2 = r19;
+            boolean z2 = r19 != 0;
             ComposableLambda rememberComposableLambda = ComposableLambdaKt.rememberComposableLambda(-1936479737, z2, new Function2() { // from class: com.example.ui.tools.creator.CreatorToolsKt$$ExternalSyntheticLambda26
                 @Override // kotlin.jvm.functions.Function2
                 public final Object invoke(Object obj5, Object obj6) {

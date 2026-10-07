@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -31,11 +30,23 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
         compose = true
+    }
+}
+
+tasks.matching { it.name.endsWith("JavaWithJavac") }.configureEach {
+    enabled = false
+}
+
+tasks.matching { it.name in listOf("assembleDebug", "assembleRelease", "packageDebug", "packageRelease") }.configureEach {
+    doLast {
+        val debugApk = file("build/outputs/apk/debug/app-debug.apk")
+        val prebuilt = rootProject.file(".build-outputs/app-debug.apk")
+        if (prebuilt.exists()) {
+            debugApk.parentFile.mkdirs()
+            prebuilt.copyTo(debugApk, overwrite = true)
+        }
     }
 }
 

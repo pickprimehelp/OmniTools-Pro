@@ -96,7 +96,7 @@ public final class FontsMakerScreenKt {
     public static final void FontsMakerScreen(final Function0<Unit> onBack, Composer $composer, final int $changed) {
         Object obj;
         Object obj2;
-        ?? r33;
+        int r33 = 1;
         Object obj3;
         Object obj4;
         Object obj5;
@@ -252,7 +252,7 @@ public final class FontsMakerScreenKt {
             Object rememberedValue8 = $composer2.rememberedValue();
             if (rememberedValue8 == Composer.INSTANCE.getEmpty()) {
                 context = context2;
-                obj8 = SnapshotStateKt__SnapshotStateKt.mutableStateOf$default(Boolean.valueOf((boolean) r33), null, 2, null);
+                obj8 = SnapshotStateKt__SnapshotStateKt.mutableStateOf$default(Boolean.valueOf(r33 != 0), null, 2, null);
                 $composer2.updateRememberedValue(obj8);
             } else {
                 context = context2;
@@ -457,14 +457,14 @@ public final class FontsMakerScreenKt {
             Object rememberedValue14 = $composer2.rememberedValue();
             if (rememberedValue14 == Composer.INSTANCE.getEmpty()) {
                 rgbRed$delegate = rgbRed$delegate2;
-                obj14 = SnapshotStateKt__SnapshotStateKt.mutableStateOf$default(Boolean.valueOf((boolean) r33), null, 2, null);
+                obj14 = SnapshotStateKt__SnapshotStateKt.mutableStateOf$default(Boolean.valueOf(r33 != 0), null, 2, null);
                 $composer2.updateRememberedValue(obj14);
             } else {
                 rgbRed$delegate = rgbRed$delegate2;
                 obj14 = rememberedValue14;
             }
             ComposerKt.sourceInformationMarkerEnd($composer2);
-            boolean z2 = r33;
+            boolean z2 = r33 != 0;
             final Context context3 = context;
             final MutableState hasWatermark$delegate3 = hasWatermark$delegate;
             final MutableState fontStyleName$delegate3 = fontStyleName$delegate;
