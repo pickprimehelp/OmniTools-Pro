@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build:
-    name: Build APK and AAB Bundle
+    name: Build APK and Play Store AAB
     runs-on: ubuntu-latest
 
     steps:
@@ -24,37 +24,38 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'gradle'
+          cache: gradle
 
       - name: Grant Execute Permission for Gradlew
         run: chmod +x ./gradlew
 
-      - name: Build APK and AAB with Gradle
-        run: ./gradlew assembleDebug bundleDebug bundleRelease --no-daemon
+      - name: Build Test APK
+        run: ./gradlew assembleDebug --no-daemon --max-workers=2
+        env:
+          GRADLE_OPTS: "-Xmx6g -XX:MaxMetaspaceSize=1g"
 
-      - name: Verify Generated Outputs
-        run: |
-          echo "=== Generated APKs ==="
-          ls -la app/build/outputs/apk/debug/
-          echo "=== Generated AAB Bundles ==="
-          ls -la app/build/outputs/bundle/debug/ || true
-          ls -la app/build/outputs/bundle/release/ || true
-
-      - name: Upload APK Artifact
+      - name: Upload Test APK
         uses: actions/upload-artifact@v4
         with:
-          name: omnitools-v1.1-apk
+          name: OmniTools-Test-APK-v1.3
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
 
-      - name: Upload AAB Play Store Bundle Artifact
+      - name: Build Play Store Release AAB
+        run: ./gradlew bundleRelease --no-daemon --max-workers=2
+        env:
+          GRADLE_OPTS: "-Xmx6g -XX:MaxMetaspaceSize=1g"
+
+      - name: Verify Release AAB
+        run: |
+          echo "=== Play Store AAB ==="
+          ls -lh app/build/outputs/bundle/release/app-release.aab
+
+      - name: Upload Play Store AAB
         uses: actions/upload-artifact@v4
         with:
-          name: omnitools-v1.1-aab-playstore
-          path: |
-            app/build/outputs/bundle/debug/app-debug.aab
-            app/build/outputs/bundle/release/app-release.aab
-          if-no-files-found: warn
+          name: OmniTools-PlayStore-AAB-v1.3
+          path: app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
           retention-days: 30
-
