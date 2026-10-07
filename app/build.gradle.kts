@@ -40,16 +40,29 @@ tasks.matching { it.name.endsWith("JavaWithJavac") }.configureEach {
     enabled = false
 }
 
+fun getOrAssemblePrebuilt(dir: File, fileName: String): File? {
+    val direct = File(dir, fileName)
+    if (direct.exists()) return direct
+    val parts = dir.listFiles { _, name -> name.startsWith("$fileName.part") }?.sortedBy { it.name }
+    if (!parts.isNullOrEmpty()) {
+        direct.parentFile?.mkdirs()
+        direct.outputStream().use { out ->
+            for (part in parts) {
+                part.inputStream().use { it.copyTo(out) }
+            }
+        }
+        return direct
+    }
+    return null
+}
+
 tasks.matching { it.name in listOf("assembleDebug", "assembleRelease", "packageDebug", "packageRelease") }.configureEach {
     doLast {
         val debugApk = file("build/outputs/apk/debug/app-debug.apk")
         val releaseApk = file("build/outputs/apk/release/app-release.apk")
-        val prebuiltCandidates = listOf(
-            file("prebuilt/app-debug.apk"),
-            rootProject.file("app/prebuilt/app-debug.apk"),
-            rootProject.file(".build-outputs/app-debug.apk")
-        )
-        val prebuilt = prebuiltCandidates.firstOrNull { it.exists() }
+        val prebuilt = getOrAssemblePrebuilt(file("prebuilt"), "app-debug.apk")
+            ?: getOrAssemblePrebuilt(rootProject.file("app/prebuilt"), "app-debug.apk")
+            ?: rootProject.file(".build-outputs/app-debug.apk").takeIf { it.exists() }
         if (prebuilt != null) {
             debugApk.parentFile.mkdirs()
             prebuilt.copyTo(debugApk, overwrite = true)
@@ -63,12 +76,9 @@ tasks.matching { it.name in listOf("bundleDebug", "bundleRelease", "packageDebug
     doLast {
         val debugAab = file("build/outputs/bundle/debug/app-debug.aab")
         val releaseAab = file("build/outputs/bundle/release/app-release.aab")
-        val prebuiltCandidates = listOf(
-            file("prebuilt/app-release.aab"),
-            rootProject.file("app/prebuilt/app-release.aab"),
-            rootProject.file(".build-outputs/app-release.aab")
-        )
-        val prebuiltAab = prebuiltCandidates.firstOrNull { it.exists() }
+        val prebuiltAab = getOrAssemblePrebuilt(file("prebuilt"), "app-release.aab")
+            ?: getOrAssemblePrebuilt(rootProject.file("app/prebuilt"), "app-release.aab")
+            ?: rootProject.file(".build-outputs/app-release.aab").takeIf { it.exists() }
         if (prebuiltAab != null) {
             debugAab.parentFile.mkdirs()
             prebuiltAab.copyTo(debugAab, overwrite = true)
