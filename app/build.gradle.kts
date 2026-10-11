@@ -11,8 +11,8 @@ android {
         applicationId = "com.aistudio.omnitools.xkrvp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 3
-        versionName = "2.1"
+        versionCode = 4
+        versionName = "2.2"
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -20,7 +20,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -41,17 +41,19 @@ tasks.matching { it.name.endsWith("JavaWithJavac") }.configureEach {
 }
 
 fun getOrAssemblePrebuilt(dir: File, fileName: String): File? {
+    val cacheFile = file("build/prebuilt_cache/$fileName")
+    if (cacheFile.exists()) return cacheFile
     val direct = File(dir, fileName)
     if (direct.exists()) return direct
     val parts = dir.listFiles { _, name -> name.startsWith("$fileName.part") }?.sortedBy { it.name }
     if (!parts.isNullOrEmpty()) {
-        direct.parentFile?.mkdirs()
-        direct.outputStream().use { out ->
+        cacheFile.parentFile.mkdirs()
+        cacheFile.outputStream().use { out ->
             for (part in parts) {
                 part.inputStream().use { it.copyTo(out) }
             }
         }
-        return direct
+        return cacheFile
     }
     return null
 }
