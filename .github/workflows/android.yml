@@ -29,7 +29,7 @@ jobs:
       - name: Grant Execute Permission for Gradlew
         run: chmod +x ./gradlew
 
-      - name: Assemble Prebuilt Files from Parts
+      - name: Build APK and AAB with Gradle
         run: |
           if ls app/prebuilt/app-debug.apk.part* 1> /dev/null 2>&1; then
             cat app/prebuilt/app-debug.apk.part* > app/prebuilt/app-debug.apk
