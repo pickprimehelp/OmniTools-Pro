@@ -1,3 +1,4 @@
+
 name: Android CI - APK & AAB Build
 
 on:
@@ -8,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -26,58 +27,34 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Grant Execute Permission for Gradlew
+      - name: Grant Execute Permission
         run: chmod +x ./gradlew
 
-      - name: Build APK and AAB with Gradle
-        run: |
-          if ls app/prebuilt/app-debug.apk.part* 1> /dev/null 2>&1; then
-            cat app/prebuilt/app-debug.apk.part* > app/prebuilt/app-debug.apk
-          fi
-          if ls app/prebuilt/app-release.aab.part* 1> /dev/null 2>&1; then
-            cat app/prebuilt/app-release.aab.part* > app/prebuilt/app-release.aab
-          fi
+      - name: Clean Old Build Files
+        run: ./gradlew clean --no-daemon
 
-      - name: Build APK and AAB with Gradle
+      - name: Build Fresh APK and AAB
         run: ./gradlew assembleDebug bundleRelease --no-daemon
 
-      - name: Ensure Complete Tested Outputs
+      - name: Verify APK and AAB
         run: |
-          mkdir -p app/build/outputs/apk/debug app/build/outputs/bundle/release
-          if [ -f app/prebuilt/app-debug.apk ]; then
-            cp app/prebuilt/app-debug.apk app/build/outputs/apk/debug/app-debug.apk
-          fi
-          if [ -f app/prebuilt/app-release.aab ]; then
-            cp app/prebuilt/app-release.aab app/build/outputs/bundle/release/app-release.aab
-          fi
+          echo "=== APK FILE ==="
+          ls -lh app/build/outputs/apk/debug/
+          echo "=== AAB FILE ==="
+          ls -lh app/build/outputs/bundle/release/
 
-      - name: Verify Generated Outputs
-        run: |
-          echo "=== Generated APKs ==="
-          ls -la app/build/outputs/apk/debug/
-          echo "=== Generated AAB Bundle (Single Release File) ==="
-          ls -la app/build/outputs/bundle/release/
-
-      - name: Upload APK Artifact
+      - name: Upload New APK
         uses: actions/upload-artifact@v4
         with:
-          name: omnitools-v2.2-apk
+          name: omnitools-v2.3-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
 
-      - name: Upload Single AAB Play Store Bundle
+      - name: Upload New AAB
         uses: actions/upload-artifact@v4
         with:
-          name: omnitools-v2.2-aab-playstore
+          name: omnitools-v2.3-aab-playstore
           path: app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
-          retention-days: 30
-
-      - name: Upload Play Store Reset Certificate
-        uses: actions/upload-artifact@v4
-        with:
-          name: playstore-upload-certificate
-          path: upload_certificate.pem
-          if-no-files-found: warn
           retention-days: 30
